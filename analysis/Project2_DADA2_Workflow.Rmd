@@ -18,41 +18,50 @@ setwd("/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis")
 pacman::p_load(dada2, tidyverse, patchwork, phyloseq, Biostrings, install = FALSE)
 packageVersion("dada2")
 
-# install.packages("dada2")
-# library("dada2")
-# packageVersion("dada2")
-# 
-# library("devtools")
-# devtools::install_github("benjjneb/")
-# packageVersion("dada2")
-
 # Load in the functions file
-source("code/functions.R")
+source("/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/code/functions.R")
 ```
 
 # Set the path to the seq files
 ```{r}
 # Set path to the gzipped files
-path <- "data/sequencing"
+path <- "data/sequencing_3"
 path
 
 # What files do we have?
 list.files(path)
 
-# Setting a variable with all the sample names by scanning our "samples" file
-samples <- scan("data/samples.txt", what="character")
+# # Loading 1st metadata file and selecting 10 samples out 46 total from the paper
+# metadata_1 <- read.csv("data/IDEO_eLife_revision_Extended_Data.txt")
+# metadata_1_10samples <- metadata %>%
+#   filter(SampleID %in% c("OB008","OB011","OB012","OB014","OB018","OB020","OB021","OB022","OB024","OB026"))
+# # View(metadata_1_10samples)
+# 
+# # Loading 2nd metadata file
+# metadata_2 <- read.csv("data/SraRunTable.txt")
+# # View(metadata_2)
+# 
+# # Merging metadata files
+# complete_metadata <- merge(metadata_1_10samples, metadata_2, by.x = "SampleID", by.y = "Sample.Name")
+# # View(complete_metadata)
+# 
+# # Setting a variable with all the sample names by scanning our "samples" file
+# samples <- complete_metadata$SampleID
+
+samples <- c("JD-11", "JD-217", "JD-111", "JD-110")
 ```
 
 # Load in Forward and Reverse reads and assess the quality
 ```{r}
+# Load reads
 # Create variable for the forward and the reverse reads
 
 # Forward read variable
-forward_reads <- sort(list.files(path, pattern="_L001_R1_001.fastq.gz",
+forward_reads <- sort(list.files(path, pattern="_1.fastq",
                       full.names=TRUE))
 
 # Reverse read variable
-reverse_reads <- sort(list.files(path, pattern="_L001_R2_001.fastq.gz",
+reverse_reads <- sort(list.files(path, pattern="_2.fastq",
                       full.names=TRUE))
 
 # 3. Place filtered files into filtered/subdirectory
@@ -72,7 +81,7 @@ forwardQual4_plot+reverseQual4_plot
 ```{r}
 filtered_out <- filterAndTrim(forward_reads, filtered_forward_reads,
                               reverse_reads, filtered_reverse_reads,
-                              truncLen = c(163, 147), trimLeft = c(19,20),
+                              truncLen = c(100, 100), trimLeft = c(20,20),
                               maxN = 0, maxEE = c(1,1), truncQ = 2,
                               rm.phix = TRUE, compress = TRUE,
                               multithread = TRUE)
@@ -80,7 +89,7 @@ filtered_out <- filterAndTrim(forward_reads, filtered_forward_reads,
 # Use figaro by Zymo-Research (on github) to trim auotomatically
 # figaro asked to trim 163-forward and 147-reverse for this dataset. And trimleft at the 19th and 20th position.
 
-# Show the quality of each base on the reads of first 4 samples
+# Show the quality of each base on the reads of first sample
 filtered_forwardQual4_plot <- plotQualityProfile(filtered_forward_reads[1:4])
 filtered_reverseQual4_plot <- plotQualityProfile(filtered_reverse_reads[1:4])
 filtered_forwardQual4_plot+filtered_reverseQual4_plot
@@ -103,13 +112,10 @@ plotErrors(err_reverse_reads, nominalQ = TRUE)
 ```{r infer-ASVs}
 # run dada2 on the forward seqs
 dada_forward <- dada(filtered_forward_reads, err = err_forward_reads, multithread = TRUE)
-type(dada_forward)
-dada_forward$`20211005-MA-SCS2F_S63_R1_filtered.fastq.gz`
 
 # run dada2 on the reverse sequences
 dada_reverse <- dada(filtered_reverse_reads, err = err_reverse_reads, multithread = TRUE)
 dada_reverse[1]
-dada_reverse[30]
 ```
 
 # Merge forward and reverse ASVs
@@ -126,7 +132,6 @@ length(merged_amplicons)
 names(merged_amplicons)
 
 merged_amplicons[1]
-merged_amplicons[30]
 ```
 
 # Generate a count table
@@ -148,7 +153,6 @@ I have `r ncol(seqtab)` ASVs in the dataset!
 ```{r}
 # Identify and remove chimeras
 seqtab_nochim <- removeBimeraDenovo(seqtab, verbose=TRUE)
-# 603 chimeras removed!
 
 # What proportion of counts were removed?
 chim_check <- sum(seqtab_nochim)/sum(seqtab) # 0.9725445
@@ -230,31 +234,10 @@ rownames(taxa_print) <- NULL
 View(taxa_print)
 ```
 
-# Evaluate accuracy
-```{r eval-accuracy}
-# Check the mock community
-mock_sample <- seqtab_nochim["MockZymoPos_S84_R1_filtered.fastq.gz",]
-length(mock_sample)
 
-# Drop ASVs absent from mock community
-length(mock_sample[mock_sample > 0])
+NOTE:
+THERE WAS NO MOCK COMMUNITY IN THIS ANALYSIS, HENCE THE CODE CHUNK FOR MEASURING MOCK COMMUNITY DETECTION ACCURACY WAS REMOVED.
 
-mock_sample_sub <- sort(mock_sample[mock_sample > 0], decreasing = TRUE)
-length(mock_sample_sub)
-
-cat("DADA2 inferred", length(mock_sample_sub), "ASVs present in the Mock Community.")
-
-# Who are they in the mock community?
-View(taxa[row.names(taxa) %in% names(mock_sample_sub), ]) # taxa that only matches the mock community, and we want all the columns!
-
-# Compare our ASVs from the mock community to the reference fasta!
-mock_reference <- getSequences(file.path("/workdir/in_class_data/", "mock_community.fasta"))
-
-match_mock_ref <- sum(sapply(names(mock_sample_sub),
-                             function(x) any(grepl(x, mock_reference))))
-
-cat(sum(match_mock_ref), "ASVs were exact matches to the expected reference sequences.")
-```
 
 # Prepare the data for export!
 ### 1. ASV Table
@@ -344,10 +327,9 @@ write.table(asv_tax, "data/ASV_taxonomy.tsv", sep="\t", quote=FALSE, col.names=N
 ### 3. Metadata
 ```{r metadata-prep}
 # Read in metadata
-metadata <- read.csv("data/metadata.csv") %>%
-  mutate(X = NULL) %>%
-  # fix typo
-  mutate(Sample_or_Control = droplevels(fct_recode(Sample_or_Control, "True Sample" = " True Sample")))
+metadata <- read.csv("data/metadata.txt") %>%
+  filter(Sample.Name %in% c("JD-11", "JD-217", "JD-111", "JD-110")) %>%
+  dplyr::rename(names = Sample.Name)
 
 head(metadata)
 
@@ -355,6 +337,8 @@ str(metadata)
 
 # Add names to rownames for phyloseq happiness
 rownames(metadata) <- metadata$names
+
+# View(metadata)
 ```
 
 ## Handoff to phyloseq
