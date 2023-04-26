@@ -48,3 +48,11 @@ forward_reads <- sort(list.files(path, pattern="_1.fastq",
 # Reverse read variable
 reverse_reads <- sort(list.files(path, pattern="_2.fastq",
                       full.names=TRUE))
+
+# 3. Place filtered files into filtered/subdirectory
+# Create a variable holding file names for the Forward and Reverse filtered reads
+filtered_forward_reads <- file.path(path, "filtered", paste0(samples, "_R1_filtered.fastq.gz"))
+filtered_reverse_reads <- file.path(path, "filtered", paste0(samples, "_R2_filtered.fastq.gz"))
+
+
+```
