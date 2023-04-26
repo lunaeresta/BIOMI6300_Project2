@@ -48,7 +48,7 @@ list.files(path)
 # # Setting a variable with all the sample names by scanning our "samples" file
 # samples <- complete_metadata$SampleID
 
-# Use 4 samples first to test workflow
+# Use 4 samples first to test
 samples <- c("JD-11", "JD-217", "JD-111", "JD-110")
 ```
 

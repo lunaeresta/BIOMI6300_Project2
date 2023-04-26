@@ -86,3 +86,8 @@ filtered_forwardQual4_plot+filtered_reverseQual4_plot
 # Learn errors
 err_forward_reads <- learnErrors(filtered_forward_reads, multithread = TRUE)
 err_reverse_reads <- learnErrors(filtered_reverse_reads, multithread = TRUE)
+
+# Plot the errors
+plotErrors(err_forward_reads, nominalQ = TRUE)
+plotErrors(err_reverse_reads, nominalQ = TRUE)
+```
