@@ -61,3 +61,12 @@ reverseQual4_plot <- plotQualityProfile(reverse_reads[1:4])
 # Plot forward and reverse 4 quality plots together
 forwardQual4_plot+reverseQual4_plot
 ```
+
+# Filtering and trimming
+```{r}
+filtered_out <- filterAndTrim(forward_reads, filtered_forward_reads,
+                              reverse_reads, filtered_reverse_reads,
+                              truncLen = c(100, 100), trimLeft = c(20,20),
+                              maxN = 0, maxEE = c(1,1), truncQ = 2,
+                              rm.phix = TRUE, compress = TRUE,
+                              multithread = TRUE)
