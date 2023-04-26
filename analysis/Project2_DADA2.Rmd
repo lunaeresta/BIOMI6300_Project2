@@ -22,3 +22,12 @@ packageVersion("dada2")
 # Load in the functions file from code directory
 source("/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/code/functions.R")
 ```
+
+# Set the path to the seq files
+```{r}
+# Set path to the gzipped files
+path <- "data/sequencing_3"
+path
+
+# What files do we have?
+list.files(path)
