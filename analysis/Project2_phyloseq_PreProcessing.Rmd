@@ -3,6 +3,8 @@ title: "Phyloseq Pre-Processing"
 author: "Luna Eresta Jaya"
 date: "2023-04-26"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 # Goals of our Pre-Processing File
@@ -49,28 +51,73 @@ View(data.frame(sample_data(raw_physeq)))
 
 ```{r rm-ASVs}
 
-noMitoChloroCJMock_physeq <-
+noMitoChloro_physeq <-
   raw_physeq %>%
   # Remove the mitochondria ASVs
   subset_taxa(Family != "Mitochondria" | is.na(Family)) %>%
   # Remove the chloroplast ASVs
   subset_taxa(Order != "Chloroplast" | is.na(Order)) %>%
-  # Remove the mock community and its ASVs
-  prune_samples(sample_names(.) %!in% c("CJ-V08-P", "MockZymoPos"), .) %>%
   # Now we will remove any ASVs of count 0
   prune_taxa(taxa_sums(.) > 0, .) # . is the holding space of our phyloseq objects that make it through our pipes
 
-noMitoChloroCJMock_physeq
+noMitoChloro_physeq
 
 # How many taxa have we removed so far?
-num_ASVs_rm <- ntaxa(raw_physeq) - ntaxa(noMitoChloroCJMock_physeq)
+num_ASVs_rm <- ntaxa(raw_physeq) - ntaxa(noMitoChloro_physeq)
 
 
 # Proportion of original data maintained
-prop_ASVs_rm <- ntaxa(noMitoChloroCJMock_physeq)/ntaxa(raw_physeq)
+prop_ASVs_rm <- ntaxa(noMitoChloro_physeq)/ntaxa(raw_physeq)
 
 ```
 
 Methods:
 
 Mitochondria, chloroplasts and mock communities were removed resulting in the loss of `r  1-prop_ASVs_rm`% of the data.
+
+## Check pre-processing results
+
+```{r}
+# Look at the phyloseq object
+noMitoChloro_physeq
+
+# Calculate the sum of the seqs in each sample
+seqSums_df <-
+  noMitoChloro_physeq %>%
+  otu_table() %>%
+  # Take the sum of each column of the ASV matrix
+  colSums() %>%
+  data.frame() %>%
+  rownames_to_column(var = "names") # %>%
+  # make_MA_metadata()
+
+View(seqSums_df)
+
+View(data.frame(noMitoChloro_physeq@otu_table))
+
+# Fix column name in 2nd column
+colnames(seqSums_df)[2] <- "TotalSeqs"
+
+# Take a look at the data frame
+head(seqSums_df)
+
+# Plot it
+# histogram plot
+seqSums_df %>%
+  ggplot(aes(x = TotalSeqs)) +
+  geom_histogram() +
+  labs(title = "Histogram of Raw Sequence Counts per sample")
+
+# density plot
+seqSums_df %>%
+  ggplot(aes(x = TotalSeqs)) +
+  geom_density() +
+  labs(title = "Density plot of of Raw Sequence Counts per sample")
+
+# # Density plots
+# seqSums_df %>%
+#   ggplot(aes(x = TotalSeqs, fill = fraction)) +
+#   geom_density() +
+#   scale_fill_manual(values = fraction_colors)
+```
+
