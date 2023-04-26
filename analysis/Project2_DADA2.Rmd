@@ -295,3 +295,20 @@ stopifnot(new_tax_tab$ASVseqs == colnames(seqtab_nochim))
 # Now let's add the ASV names
 rownames(new_tax_tab) <- rownames(asv_tab)
 View(new_tax_tab)
+
+
+### Final prep of tax table. Add new column with ASV names
+asv_tax <- new_tax_tab %>%
+  # add rownames from the count table for easier phyloseq handoff
+  mutate(ASV = rownames(asv_tab)) %>%
+  # Re-sort the columns with select
+  dplyr::select(Kingdom, Phylum, Class, Order, Family, Genus, Species, ASV, ASVseqs)
+
+View(asv_tax)
+
+# Intuition check
+stopifnot(asv_tax$ASV == rownames(asv_tax), rownames(asv_tax) == rownames(asv_tab))
+
+# Write the table
+write.table(asv_tax, "data/ASV_taxonomy.tsv", sep="\t", quote=FALSE, col.names=NA)
+```
