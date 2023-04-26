@@ -144,3 +144,18 @@ frac_removed <- (1-chim_check)*100 #percent
 frac_removed
 #11.73% percent was removed based on 4 sequencing data files
 ```
+
+Chimeras represented `r frac_removed` percent of the data.
+
+# Track the sequences through the pipeline
+```{r}
+# Create a little function to identify number seqs
+getN <- function(x) sum(getUniques(x))
+
+# Make the table to track the seqs
+track <- cbind(filtered_out,
+               sapply(dada_forward, getN),
+               sapply(dada_reverse, getN),
+               sapply(merged_amplicons, getN),
+               rowSums(seqtab_nochim))
+head(track)
