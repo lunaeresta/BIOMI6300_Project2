@@ -8,7 +8,7 @@ editor_options:
 ---
 
 # Loading packages
-```{r}
+```{r load}
 # Be in the right place
 setwd("/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis")
 
@@ -48,12 +48,13 @@ list.files(path)
 # # Setting a variable with all the sample names by scanning our "samples" file
 # samples <- complete_metadata$SampleID
 
+# Use 4 samples first to test workflow
 samples <- c("JD-11", "JD-217", "JD-111", "JD-110")
 ```
 
 # Load in Forward and Reverse reads and assess the quality
 ```{r}
-# Load reads
+# Load reads #
 # Create variable for the forward and the reverse reads
 
 # Forward read variable
