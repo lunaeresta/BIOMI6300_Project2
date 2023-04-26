@@ -121,3 +121,17 @@ seqSums_df %>%
 #   scale_fill_manual(values = fraction_colors)
 ```
 
+# Remove sample with too few reads
+```{r}
+preprocessed_physeq <-
+  noMitoChloro_physeq # %>%
+#  subset_samples(., names != "20210615-MA-SCB2F")
+
+min(sample_sums(preprocessed_physeq))
+```
+
+# Save preprocessed phyloseq!
+```{r save-physeq}
+save(preprocessed_physeq, file = "/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/data/preprocessed_physeq.RData")
+```
+
