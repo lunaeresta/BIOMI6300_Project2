@@ -224,3 +224,35 @@ NOTE:
 THERE WAS NO MOCK COMMUNITY IN THIS ANALYSIS, HENCE THE CODE CHUNK FOR MEASURING MOCK COMMUNITY DETECTION ACCURACY WAS REMOVED.
 
 
+
+
+# Prepare the data for export!
+### 1. ASV Table
+```{r prepare-ASV-table}
+# Prep the asv table!
+samples_out <- rownames(seqtab_nochim)
+
+# Pull out sample names from the fastq file name
+sample_names_reformatted <- sapply(strsplit(samples_out, split="_"), `[`, 1)
+
+# Replace the names in our seqtable
+rownames(seqtab_nochim) <- sample_names_reformatted
+
+### intuition check
+stopifnot(rownames(seqtab_nochim) == sample_names_reformatted)
+
+########### Modify the ASV names and then save a fasta file!
+# Give headers more manageable names
+# First pull the ASV sequences
+asv_seqs <- colnames(seqtab_nochim)
+
+# make headers for oru ASV seq fasta file, which will be our asv names
+asv_headers <- vector(dim(seqtab_nochim)[2], mode = "character")
+
+# loop through vector and fill it in with ASV names
+for(i in 1:dim(seqtab_nochim)[2]){
+  asv_headers[i] <- paste(">ASV", i, sep="_")
+}
+
+# intuition check
+asv_headers
