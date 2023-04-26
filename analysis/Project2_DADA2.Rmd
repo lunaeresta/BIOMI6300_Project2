@@ -142,4 +142,5 @@ seqtab_nochim <- removeBimeraDenovo(seqtab, verbose=TRUE)
 chim_check <- sum(seqtab_nochim)/sum(seqtab) # 0.9725445
 frac_removed <- (1-chim_check)*100 #percent
 frac_removed
+#11.73% percent was removed based on 4 sequencing data files
 ```
