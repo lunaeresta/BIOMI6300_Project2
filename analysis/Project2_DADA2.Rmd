@@ -187,3 +187,20 @@ track %>%
 # First, let's source the colors_and_shapes.R
 # This file is in /workdir/in_class_data/colors_and_shapes.R
 source("code/colors_and_shapes.R")
+
+
+# Plot the percent reads retained 
+# track %>%
+#   as.data.frame() %>%
+#   mutate(percent_reads_retained = round((nochim/input)*100, digits = 2)) %>%
+#   rownames_to_column(var = "names") %>% # As input to make_MA_metadata
+#   make_MA_metadata() %>%
+#   # Make the plot! 
+#   ggplot(aes(x = fraction, y = percent_reads_retained, fill = fraction)) + 
+#   geom_jitter(shape = 21, size = 3, alpha = 0.8) + 
+#   geom_boxplot(alpha = 0.4, outlier.shape = NA) + 
+#   # scale_fill_manual(values = fraction_colors) + 
+#   theme_bw() + 
+#   labs(y = "Percent Sequences Retained by DADA2") +
+#   theme(axis.title.x = element_blank())
+```
