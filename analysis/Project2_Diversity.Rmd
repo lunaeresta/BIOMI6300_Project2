@@ -83,12 +83,15 @@ div_iNEXT_df <-
 
 # Plot diversity in samples
 ```{r}
-# fraction_colors
-# 
-# # Set colors for manual plotting with iNEXT
-# background_col_FL <- "goldenrod1"
-# background_col_PA <- "firebrick3"
-# background_col_WH <- "darkorange2"
+# Set colors and plots for manual plotting with iNEXT
+background_col_Indian <- "goldenrod1"
+background_col_Chinese <- "firebrick3"
+background_col_Malay <- "darkorange2"
+background_col_Native <- "grey"
+shape_Indian <- 15
+shape_Chinese <- 16
+shape_Malay <- 17
+shape_Native <- 18
 
 ###
 # Prepare data to color the figure for iNEXT
@@ -97,83 +100,42 @@ dat <- colnames(iNEXT_input_df) %>%
 
 colnames(dat)[1] <- "names"
 
-sub_metadata <- dat %>%
-  merge()
+sub_metadata <- merge(dat, raw_metadata, by.x = "names", by.y = "names")
 
-# # Add the colors for the plotting!
-# dat_iNEXT <- dat %>%      
-#   left_join(sub_metadata, by = "names") %>%    
-#   mutate(fraction_color = ifelse(fraction == "Particle", background_col_PA,                                  ifelse(fraction == "Free", background_col_FL,                                        background_col_WH)))
+# Add the colors and shapes for the plots
+dat_iNEXT <- dat %>%    
+  left_join(sub_metadata, by = "names") %>%  
+  mutate(ETHNICITY_color = ifelse(ETHNICITY == "Indian", background_col_Indian, 
+                                 ifelse(ETHNICITY == "Chinese", background_col_Chinese,
+                                        ifelse(ETHNICITY == "Malay", background_col_Malay,
+                                               background_col_Native)))) %>%
+  mutate(ETHNICITY_shape = ifelse(ETHNICITY == "Indian", shape_Indian, 
+                                 ifelse(ETHNICITY == "Chinese", shape_Chinese,
+                                        ifelse(ETHNICITY == "Malay", shape_Malay,
+                                               shape_Native))))
+# View(dat_iNEXT)
 
-# Add the colors for the plotting!
-dat_iNEXT <- dat %>%      
-  left_join(sub_metadata, by = "names")
-
-View(iNEXT_data)
-View(iNEXT_data$AsyEst)
-
-# Now plot it all :) 
 # Plot the rarefaction/extrapolation curve (type = 1)
 rarefaction_fixed_plot <-   
-  ggiNEXT(iNEXT_data, type=1, facet.var="Order.q", color.var="None") +   
-  facet_wrap(~Order.q, scales="fixed") +
-  scale_color_brewer(palette = "Paired") +
-  scale_fill_brewer(palette = "Paired") +
-  theme(legend.position = "none") +   
-  labs(x = "Number of Sequences") # +
-  # xlim(0, 3000) +
-  # ylim(0, 50)
-
+  ggiNEXT(iNEXT_data, type=1, facet.var="Order.q") +   
+  facet_wrap(~Order.q, scales="fixed") +  
+  scale_color_manual(values = dat_iNEXT$ETHNICITY_color,  guide = FALSE) +  
+  scale_fill_manual(values = dat_iNEXT$ETHNICITY_color, guide = FALSE) +  
+  scale_shape_manual(values = dat_iNEXT$ETHNICITY_shape, guide = FALSE) +
+  # theme(legend.position = "none") +   
+  labs(x = "Number of Sequences")
 rarefaction_fixed_plot
+
+scaled_rarefaction_fixed_plot <- rarefaction_fixed_plot + xlim(0, 3000)
+scaled_rarefaction_fixed_plot
 
 # Save the file! 
 ggsave(rarefaction_fixed_plot,        
        filename = "figures/rarefaction_fixed.png",       
        units = "in", height = 3.5, width = 8)
 
-```
-
-
-# Plot diversity in samples
-```{r}
-fraction_colors
-
-# Set colors for manual plotting with iNEXT
-background_col_FL <- "goldenrod1"
-background_col_PA <- "firebrick3"
-background_col_WH <- "darkorange2"
-
-###
-# Prepare data to color the figure for iNEXT
-dat <- colnames(iNEXT_input_df) %>%    
-  data.frame() 
-
-colnames(dat)[1] <- "names"     
-
-sub_metadata <- dat %>% make_MA2_metadata()
-
-# Add the colors for the plotting!
-dat_iNEXT <- dat %>%      
-  left_join(sub_metadata, by = "names") %>%    
-  mutate(fraction_color = ifelse(fraction == "Particle", background_col_PA,                                  ifelse(fraction == "Free", background_col_FL,                                        background_col_WH)))
-
-# Now plot it all :) 
-# Plot the rarefaction/extrapolation curve (type = 1)
-rarefaction_fixed_plot <-   
-  ggiNEXT(iNEXT_data, type=1, facet.var="Order.q") +   
-  facet_wrap(~Order.q, scales="fixed") +  
-  scale_color_manual(values = dat_iNEXT$fraction_color,  guide = FALSE) +  
-  scale_fill_manual(values = dat_iNEXT$fraction_color, guide = FALSE) +  
-  theme(legend.position = "none") +   
-  labs(x = "Number of Sequences") +
-  geom_vline(xintercept = 1839) +
-  xlim(0, 3000)
-
-rarefaction_fixed_plot
-
-# Save the file! 
-ggsave(rarefaction_fixed_plot,        
-       filename = "figures/rarefaction_fixed.png",       
+ggsave(scaled_rarefaction_fixed_plot,        
+       filename = "figures/rarefaction_fixed_scaled.png",       
        units = "in", height = 3.5, width = 8)
 
 ```
@@ -186,7 +148,7 @@ str(iNEXT_data)
 
 # Pull out information on Rarefaction
 str(iNEXT_data$iNextEst$size_based)
-str(iNEXT_data[[2]][1])
+# str(iNEXT_data[[2]][1])
 ## two square brackets on the first one un-lists the first list
 
 # Look into the observed diversity values and check them
@@ -195,26 +157,39 @@ obs_rich_df <-
   # extract the richness from the data
   dplyr::filter(Order.q == 0) %>%
   dplyr::filter(Method == "Observed") %>% # we only want to look at the observed values
-  dplyr::rename(names = Assemblage) %>%
-  # Remove the Xs from the sample names
-  mutate(names = gsub("X", "", names)) # %>%
-  # make_MA_metadata()
+  dplyr::rename(names = Assemblage)
+obs_rich_df <- merge(obs_rich_df, raw_metadata, by.x = "names", by.y = "names")
 
 View(obs_rich_df)
 
-# Manually plot the rarefaction
-iNEXT_data$iNextEst$size_based %>%
+# Manually plot the rarefactions based on richness
+custom_rarefaction_richness <- iNEXT_data$iNextEst$size_based %>%
   # extract the richness from the data
   dplyr::filter(Order.q == 0) %>%
   dplyr::filter(Method == "Rarefaction") %>% # we only want to look at the observed values
-  dplyr::rename(names = Assemblage) %>%
-  # Remove the Xs from the sample names
-  mutate(names = gsub("X", "", names)) %>%
-  # make_MA_metadata() %>%
-  ggplot(aes(x = m, y = qD, color = fraction, group = names)) +
+  dplyr::rename(names = Assemblage)
+custom_rarefaction_richness <- merge(custom_rarefaction_richness, raw_metadata, by.x = "names", by.y = "names")
+custom_rarefaction_richness %>%
+  ggplot(aes(x = m, y = qD, color = ETHNICITY, group = names)) +
   geom_line() +
-  geom_point(data = obs_rich_df, aes(x = m, y = qD, color = fraction)) +
-  facet_grid(.~fraction) + 
-  scale_color_manual(values = fraction_colors)
+  geom_point(data = obs_rich_df, aes(x = m, y = qD, color = ETHNICITY)) +
+  facet_grid(.~ETHNICITY) +
+  labs(x = "Number of Sequences", y = "Species Richness") +
+  xlim(0, 5000)
+
+# Manually plot the rarefactions based on common taxa
+custom_rarefaction_richness <- iNEXT_data$iNextEst$size_based %>%
+  # extract the richness from the data
+  dplyr::filter(Order.q == 0) %>%
+  dplyr::filter(Method == "Rarefaction") %>% # we only want to look at the observed values
+  dplyr::rename(names = Assemblage)
+custom_rarefaction_richness <- merge(custom_rarefaction_richness, raw_metadata, by.x = "names", by.y = "names")
+custom_rarefaction_richness %>%
+  ggplot(aes(x = m, y = qD, color = ETHNICITY, group = names)) +
+  geom_line() +
+  geom_point(data = obs_rich_df, aes(x = m, y = qD, color = ETHNICITY)) +
+  facet_grid(.~ETHNICITY) +
+  labs(x = "Number of Sequences", y = "Species Richness") +
+  xlim(0, 5000)
 
 ```
