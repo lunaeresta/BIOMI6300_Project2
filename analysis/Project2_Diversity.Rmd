@@ -36,3 +36,92 @@ load("data/preprocessed_physeq.RData")
 preprocessed_physeq
 ```
 
+
+# Load data
+```{r load-data}
+load("data/preprocessed_physeq.RData")
+preprocessed_physeq
+```
+
+
+# Run biodiversity analysis!
+## Work with the iNEXT package
+```{r iNEXT-div-estimation}
+# Prepare data for iNEXT
+iNEXT_input_df <- 
+  preprocessed_physeq %>%
+  otu_table() %>%
+  data.frame()
+
+# Run iNEXT on the data --> interpolation and extrapolation of hill numbers
+# Warning: Takes ~5 mins to run!
+# Calculate diversity with iNEXT
+set.seed(12)
+
+# iNEXT_data <- iNEXT(iNEXT_input_df, q = c(0,1,2), datatype = "abundance")
+# save(iNEXT_data, file = "data/iNEXT_MissionAransas.RData")
+
+load("data/iNEXT_MissionAransas.RData")
+# Note that the object is called "iNEXT_data"
+
+typeof(iNEXT_data)
+str(iNEXT_data)
+
+# Make workable dataframe
+div_iNEXT_df <-
+  iNEXT_data$AsyEst %>%
+  dplyr::rename(names = Assemblage) # %>%
+  # make_MA2_metadata()
+```
+
+
+# Plot diversity in samples
+```{r}
+# fraction_colors
+# 
+# # Set colors for manual plotting with iNEXT
+# background_col_FL <- "goldenrod1"
+# background_col_PA <- "firebrick3"
+# background_col_WH <- "darkorange2"
+
+###
+# Prepare data to color the figure for iNEXT
+dat <- colnames(iNEXT_input_df) %>%    
+  data.frame() 
+
+colnames(dat)[1] <- "names"
+
+sub_metadata <- dat %>% make_MA2_metadata()
+
+# # Add the colors for the plotting!
+# dat_iNEXT <- dat %>%      
+#   left_join(sub_metadata, by = "names") %>%    
+#   mutate(fraction_color = ifelse(fraction == "Particle", background_col_PA,                                  ifelse(fraction == "Free", background_col_FL,                                        background_col_WH)))
+
+# Add the colors for the plotting!
+dat_iNEXT <- dat %>%      
+  left_join(sub_metadata, by = "names")
+
+View(iNEXT_data)
+View(iNEXT_data$AsyEst)
+
+# Now plot it all :) 
+# Plot the rarefaction/extrapolation curve (type = 1)
+rarefaction_fixed_plot <-   
+  ggiNEXT(iNEXT_data, type=1, facet.var="Order.q", color.var="None") +   
+  facet_wrap(~Order.q, scales="fixed") +
+  scale_color_brewer(palette = "Paired") +
+  scale_fill_brewer(palette = "Paired") +
+  theme(legend.position = "none") +   
+  labs(x = "Number of Sequences") # +
+  # xlim(0, 3000) +
+  # ylim(0, 50)
+
+rarefaction_fixed_plot
+
+# Save the file! 
+ggsave(rarefaction_fixed_plot,        
+       filename = "figures/rarefaction_fixed.png",       
+       units = "in", height = 3.5, width = 8)
+
+```
