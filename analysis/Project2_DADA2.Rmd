@@ -33,7 +33,12 @@ path
 list.files(path)
 
 # Use 4 samples first to test workflow
-samples <- c("JD-11", "JD-217", "JD-111", "JD-110")
+samples <- c("JD-11", "JD-217", 
+             "JD-214", "JD-111",
+             "JD-207", "JD-205",
+             "JD-110", "JD-197",
+             "JD-29", "JD-28",
+             "JD-25", "JD-237")
 ```
 
 # Load in Forward and Reverse reads and assess the quality
@@ -143,6 +148,7 @@ chim_check <- sum(seqtab_nochim)/sum(seqtab) # 0.9725445
 frac_removed <- (1-chim_check)*100 #percent
 frac_removed
 #11.73% percent was removed based on 4 sequencing data files
+#7.15% removed from all 12 files
 ```
 
 Chimeras represented `r frac_removed` percent of the data.
