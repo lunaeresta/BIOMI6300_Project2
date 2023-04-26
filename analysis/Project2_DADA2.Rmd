@@ -323,7 +323,6 @@ write.table(asv_tax, "data/ASV_taxonomy.tsv", sep="\t", quote=FALSE, col.names=N
 ```{r metadata-prep}
 # Read in metadata
 metadata <- read.csv("data/metadata.txt") %>%
-  filter(Sample.Name %in% c("JD-11", "JD-217", "JD-111", "JD-110")) %>%
   dplyr::rename(names = Sample.Name)
 
 head(metadata)
@@ -333,7 +332,7 @@ str(metadata)
 # Add names to rownames for phyloseq happiness
 rownames(metadata) <- metadata$names
 
-# View(metadata)
+View(metadata)
 ```
 
 
