@@ -72,3 +72,11 @@ filtered_out <- filterAndTrim(forward_reads, filtered_forward_reads,
                               multithread = TRUE)
 
 # Use figaro by Zymo-Research (on github) to trim auotomatically
+
+
+# Show the quality of each base on the reads of first sample
+filtered_forwardQual4_plot <- plotQualityProfile(filtered_forward_reads[1:4])
+filtered_reverseQual4_plot <- plotQualityProfile(filtered_reverse_reads[1:4])
+filtered_forwardQual4_plot+filtered_reverseQual4_plot
+
+```
