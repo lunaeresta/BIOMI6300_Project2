@@ -276,3 +276,22 @@ asv_fasta <- c(rbind(asv_headers, asv_seqs))
 # Save to a file
 write(asv_fasta, "data/ASVs.fasta")
 ```
+
+### 2. Taxonomy Table
+```{r prepare-tax-table}
+View(taxa)
+
+##### Prepare tax table
+# Add the ASV sequences from the rownames to a column
+new_tax_tab <- taxa %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "ASVseqs")
+
+head(new_tax_tab)
+
+# intuition check
+stopifnot(new_tax_tab$ASVseqs == colnames(seqtab_nochim))
+
+# Now let's add the ASV names
+rownames(new_tax_tab) <- rownames(asv_tab)
+View(new_tax_tab)
