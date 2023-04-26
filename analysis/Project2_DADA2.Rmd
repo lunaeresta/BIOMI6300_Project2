@@ -101,3 +101,12 @@ dada_forward <- dada(filtered_forward_reads, err = err_forward_reads, multithrea
 dada_reverse <- dada(filtered_reverse_reads, err = err_reverse_reads, multithread = TRUE)
 dada_reverse[1]
 ```
+
+# Merge forward and reverse ASVs
+```{r merge-FandR-ASVs}
+# Merge and forward ASVs and the reverse ASVs
+merged_amplicons <- mergePairs(dada_forward, filtered_forward_reads,
+                              dada_reverse, filtered_reverse_reads,
+                              verbose = TRUE)
+
+```
