@@ -1,0 +1,23 @@
+---
+title: "DADA2 Workflow for BIOMI6300 Project 2"
+author: "Luna Eresta Jaya"
+date: "2023-04-26"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Loading packages
+```{r load}
+# Be in the right place
+setwd("/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis")
+
+# Load packman packages
+# install.packages("pacman")
+# Download Software 
+pacman::p_load(dada2, tidyverse, patchwork, phyloseq, Biostrings, install = FALSE)
+packageVersion("dada2")
+
+# Load in the functions file
+source("/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/code/functions.R")
+```
