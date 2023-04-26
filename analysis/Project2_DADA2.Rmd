@@ -109,4 +109,11 @@ merged_amplicons <- mergePairs(dada_forward, filtered_forward_reads,
                               dada_reverse, filtered_reverse_reads,
                               verbose = TRUE)
 
+# Evaluate the output
+merged_amplicons
+typeof(merged_amplicons)
+length(merged_amplicons)
+names(merged_amplicons)
+
+merged_amplicons[1]
 ```
