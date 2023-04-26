@@ -31,3 +31,8 @@ path
 
 # What files do we have?
 list.files(path)
+
+# Use 4 samples first to test workflow
+samples <- c("JD-11", "JD-217", "JD-111", "JD-110")
+```
+
