@@ -28,3 +28,11 @@ pacman::p_load(phyloseq, iNEXT, ggpubr, tidyverse, install = FALSE)
 source("code/functions.R")
 source("code/colors_and_shapes.R")
 ```
+
+
+# Load data
+```{r load-data}
+load("data/preprocessed_physeq.RData")
+preprocessed_physeq
+```
+
