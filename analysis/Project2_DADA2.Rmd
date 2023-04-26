@@ -218,3 +218,9 @@ taxa_print <- taxa # Removing sequence rownames for display only
 rownames(taxa_print) <- NULL
 View(taxa_print)
 ```
+
+
+NOTE:
+THERE WAS NO MOCK COMMUNITY IN THIS ANALYSIS, HENCE THE CODE CHUNK FOR MEASURING MOCK COMMUNITY DETECTION ACCURACY WAS REMOVED.
+
+
