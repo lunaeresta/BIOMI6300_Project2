@@ -159,7 +159,6 @@ obs_rich_df <-
   dplyr::filter(Method == "Observed") %>% # we only want to look at the observed values
   dplyr::rename(names = Assemblage)
 obs_rich_df <- merge(obs_rich_df, raw_metadata, by.x = "names", by.y = "names")
-
 View(obs_rich_df)
 
 # Manually plot the rarefactions based on richness
@@ -177,19 +176,55 @@ custom_rarefaction_richness %>%
   labs(x = "Number of Sequences", y = "Species Richness") +
   xlim(0, 5000)
 
-# Manually plot the rarefactions based on common taxa
-custom_rarefaction_richness <- iNEXT_data$iNextEst$size_based %>%
-  # extract the richness from the data
-  dplyr::filter(Order.q == 0) %>%
+### Common Taxa
+# New df
+obs_shannon_df <- 
+  iNEXT_data$iNextEst$size_based %>%
+  # extract the shannon from the data
+  dplyr::filter(Order.q == 1) %>%
+  dplyr::filter(Method == "Observed") %>% # we only want to look at the observed values
+  dplyr::rename(names = Assemblage)
+obs_shannon_df <- merge(obs_shannon_df, raw_metadata, by.x = "names", by.y = "names")
+# View(obs_shannon_df)
+# Plot
+custom_rarefaction_shannon <- iNEXT_data$iNextEst$size_based %>%
+  # extract the shannon from the data
+  dplyr::filter(Order.q == 1) %>%
   dplyr::filter(Method == "Rarefaction") %>% # we only want to look at the observed values
   dplyr::rename(names = Assemblage)
-custom_rarefaction_richness <- merge(custom_rarefaction_richness, raw_metadata, by.x = "names", by.y = "names")
-custom_rarefaction_richness %>%
+custom_rarefaction_shannon <- merge(custom_rarefaction_shannon, raw_metadata, by.x = "names", by.y = "names")
+custom_rarefaction_shannon %>%
   ggplot(aes(x = m, y = qD, color = ETHNICITY, group = names)) +
   geom_line() +
-  geom_point(data = obs_rich_df, aes(x = m, y = qD, color = ETHNICITY)) +
+  geom_point(data = obs_shannon_df, aes(x = m, y = qD, color = ETHNICITY)) +
   facet_grid(.~ETHNICITY) +
-  labs(x = "Number of Sequences", y = "Species Richness") +
+  labs(x = "Number of Sequences", y = "Shannon Diversity") +
+  xlim(0, 5000)
+
+
+### Dominant Taxa
+# New df
+obs_simpson_df <- 
+  iNEXT_data$iNextEst$size_based %>%
+  # extract the simpson from the data
+  dplyr::filter(Order.q == 2) %>%
+  dplyr::filter(Method == "Observed") %>% # we only want to look at the observed values
+  dplyr::rename(names = Assemblage)
+obs_simpson_df <- merge(obs_simpson_df, raw_metadata, by.x = "names", by.y = "names")
+# View(obs_simpson_df)
+# Plot
+custom_rarefaction_simpson <- iNEXT_data$iNextEst$size_based %>%
+  # extract the simpson from the data
+  dplyr::filter(Order.q == 2) %>%
+  dplyr::filter(Method == "Rarefaction") %>% # we only want to look at the observed values
+  dplyr::rename(names = Assemblage)
+custom_rarefaction_simpson <- merge(custom_rarefaction_simpson, raw_metadata, by.x = "names", by.y = "names")
+custom_rarefaction_simpson %>%
+  ggplot(aes(x = m, y = qD, color = ETHNICITY, group = names)) +
+  geom_line() +
+  geom_point(data = obs_simpson_df, aes(x = m, y = qD, color = ETHNICITY)) +
+  facet_grid(.~ETHNICITY) +
+  labs(x = "Number of Sequences", y = "Simpson Diversity") +
   xlim(0, 5000)
 
 ```
