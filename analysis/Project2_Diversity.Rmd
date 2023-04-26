@@ -1,0 +1,30 @@
+---
+title: "Biodiversity Analysis"
+author: "Luna Eresta Jaya"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+# output: html_document
+      # toc: true
+      # toc_depth: 2
+output:
+    html_document:
+      toc: true
+      toc_depth: 2
+      toc_float: true
+      theme: united
+      highlight: tango
+editor_options: 
+  chunk_output_type: console
+---
+
+# Load packages
+```{r}
+# install.packages("iNEXT")
+# install.packages("ggpubr")
+
+# Efficiently load packages
+pacman::p_load(phyloseq, iNEXT, ggpubr, tidyverse, install = FALSE)
+
+# Load in functions and color preferences
+source("code/functions.R")
+source("code/colors_and_shapes.R")
+```
