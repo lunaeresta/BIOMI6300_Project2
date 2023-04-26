@@ -256,3 +256,23 @@ for(i in 1:dim(seqtab_nochim)[2]){
 
 # intuition check
 asv_headers
+
+
+##### Rename ASVs in table then write out our ASV fasta file!
+View(seqtab_nochim)
+asv_tab <- t(seqtab_nochim)
+View(asv_tab)
+
+## Rename our asvs!
+row.names(asv_tab) <- sub(">", "", asv_headers)
+View(asv_tab)
+
+# Write the count table to a file!
+write.table(asv_tab, "data/ASV_counts.tsv", sep="\t", quote=FALSE, col.names=NA)
+
+# Write out the fasta file for reference later on for what seq matches what ASV
+asv_fasta <- c(rbind(asv_headers, asv_seqs))
+
+# Save to a file
+write(asv_fasta, "data/ASVs.fasta")
+```
