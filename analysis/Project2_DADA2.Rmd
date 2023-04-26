@@ -117,3 +117,16 @@ names(merged_amplicons)
 
 merged_amplicons[1]
 ```
+
+# Generate a count table
+```{r gen-countTable-seqTab}
+seqtab <- makeSequenceTable(merged_amplicons)
+class(seqtab)
+typeof(seqtab)
+dim(seqtab)
+View(seqtab)
+
+# Inspect the distribution of sequence lengths of all ASVs in the dataset
+table(nchar(getSequences(seqtab)))
+# why are there samples with more or less than 214 base pairs?
+```
