@@ -9,15 +9,16 @@ editor_options:
 
 # Loading packages
 ```{r load}
-# Be in the right place
+# Set working directory
 setwd("/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis")
 
 # Load packman packages
 # install.packages("pacman")
 # Download Software 
 pacman::p_load(dada2, tidyverse, patchwork, phyloseq, Biostrings, install = FALSE)
+# Ensure correct package
 packageVersion("dada2")
 
-# Load in the functions file
+# Load in the functions file from code directory
 source("/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/code/functions.R")
 ```
