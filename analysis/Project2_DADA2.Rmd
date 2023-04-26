@@ -70,3 +70,5 @@ filtered_out <- filterAndTrim(forward_reads, filtered_forward_reads,
                               maxN = 0, maxEE = c(1,1), truncQ = 2,
                               rm.phix = TRUE, compress = TRUE,
                               multithread = TRUE)
+
+# Use figaro by Zymo-Research (on github) to trim auotomatically
