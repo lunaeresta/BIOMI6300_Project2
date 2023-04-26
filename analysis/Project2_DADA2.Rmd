@@ -329,3 +329,16 @@ rownames(metadata) <- metadata$names
 
 # View(metadata)
 ```
+
+
+## Handoff to phyloseq
+```{r phyloseq-handoff}
+raw_physeq <- phyloseq(otu_table(asv_tab, taxa_are_rows = TRUE),
+                         sample_data(metadata),
+                         tax_table(as.matrix(asv_tax)))
+
+raw_physeq
+
+save(raw_physeq, file=paste0("data/raw_physeq.RData"))
+```
+
