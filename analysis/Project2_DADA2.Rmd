@@ -204,3 +204,8 @@ source("code/colors_and_shapes.R")
 #   labs(y = "Percent Sequences Retained by DADA2") +
 #   theme(axis.title.x = element_blank())
 ```
+
+# Assign taxonomy
+```{r assign-tax}
+# The next line took 2 mins to run
+taxa <- assignTaxonomy(seqtab_nochim, "/workdir/in_class_data/taxonomy/silva_nr99_v138.1_train_set.fa.gz", multithread=TRUE)
