@@ -24,3 +24,53 @@ pacman::p_load(tidyverse, phyloseq, install = FALSE)
 source("/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/code/functions.R")
 source("/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/code/colors_and_shapes.R")
 ```
+
+
+# Load the data
+
+```{r load-data}
+# Load in the raw_phyloseq data from DADA2_workflow.Rmd
+load("/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/data/raw_physeq.RData")
+
+# Take a look at the S4 object!
+raw_physeq
+
+# Tell us about you phyloseq!
+str(raw_physeq)
+typeof(raw_physeq)
+
+View(raw_physeq@otu_table)
+View(raw_physeq@tax_table)
+View(data.frame(sample_data(raw_physeq)))
+```
+
+
+## Remove unnecessary taxa!
+
+```{r rm-ASVs}
+
+noMitoChloroCJMock_physeq <-
+  raw_physeq %>%
+  # Remove the mitochondria ASVs
+  subset_taxa(Family != "Mitochondria" | is.na(Family)) %>%
+  # Remove the chloroplast ASVs
+  subset_taxa(Order != "Chloroplast" | is.na(Order)) %>%
+  # Remove the mock community and its ASVs
+  prune_samples(sample_names(.) %!in% c("CJ-V08-P", "MockZymoPos"), .) %>%
+  # Now we will remove any ASVs of count 0
+  prune_taxa(taxa_sums(.) > 0, .) # . is the holding space of our phyloseq objects that make it through our pipes
+
+noMitoChloroCJMock_physeq
+
+# How many taxa have we removed so far?
+num_ASVs_rm <- ntaxa(raw_physeq) - ntaxa(noMitoChloroCJMock_physeq)
+
+
+# Proportion of original data maintained
+prop_ASVs_rm <- ntaxa(noMitoChloroCJMock_physeq)/ntaxa(raw_physeq)
+
+```
+
+Methods:
+
+Mitochondria, chloroplasts and mock communities were removed resulting in the loss of `r  1-prop_ASVs_rm`% of the data.
