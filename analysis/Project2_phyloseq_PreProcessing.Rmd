@@ -1,0 +1,26 @@
+---
+title: "Phyloseq Pre-Processing"
+author: "Luna Eresta Jaya"
+date: "2023-04-26"
+output: html_document
+---
+
+# Goals of our Pre-Processing File
+
+We will work here in this document to remove any unnecessary ASVs or samples, such as:
+1. Mitochondria ASVs
+2. Chloroplast ASVs
+
+## Load Packages and Functions
+
+```{r load-packages-functions}
+# Set wd
+# setwd("/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis")
+
+# Load packages
+pacman::p_load(tidyverse, phyloseq, install = FALSE)
+
+# Source functions
+source("/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/code/functions.R")
+source("/local/workdir/lej52/BIOMI6300_Project2_Amplicon_Analysis/code/colors_and_shapes.R")
+```
