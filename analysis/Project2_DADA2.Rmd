@@ -209,3 +209,12 @@ source("code/colors_and_shapes.R")
 ```{r assign-tax}
 # The next line took 2 mins to run
 taxa <- assignTaxonomy(seqtab_nochim, "/workdir/in_class_data/taxonomy/silva_nr99_v138.1_train_set.fa.gz", multithread=TRUE)
+
+# the next line took 3 minutes 
+taxa <- addSpecies(taxa, "/workdir/in_class_data/taxonomy/silva_species_assignment_v138.1.fa.gz")
+
+# Inspect the taxonomy 
+taxa_print <- taxa # Removing sequence rownames for display only
+rownames(taxa_print) <- NULL
+View(taxa_print)
+```
