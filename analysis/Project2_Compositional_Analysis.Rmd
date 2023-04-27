@@ -19,7 +19,7 @@ editor_options:
 # install.packages("ggpubr")
 
 # Efficiently load packages
-pacman::p_load(phyloseq, iNEXT, vegan, ggpubr, tidyverse, install = FALSE)
+pacman::p_load(phyloseq, iNEXT, vegan, ggpubr, tidyverse, gridExtra, install = FALSE)
 
 # Load in functions and color preferences
 source("code/functions.R")
@@ -104,7 +104,7 @@ scaled_BC_pcoa <-
 # Plot the PCoA, color by ETHNICITY
 # Ethnicity explains the difference in x-axis a little bit
 # Chinese population seem to be clustered together on the x-axis
-plot_ordination(
+ordination_ethnicity <- plot_ordination(
   physeq = scaled_physeq_above500,
   ordination = scaled_BC_pcoa,
   color = "ETHNICITY",
@@ -115,7 +115,7 @@ plot_ordination(
 
 # Color by Sub-district
 # Different sub-districts do not seem to be have different PCoAs
-plot_ordination(
+ordination_subdistrict <- plot_ordination(
   physeq = scaled_physeq_above500,
   ordination = scaled_BC_pcoa,
   color = "subdistrict",
@@ -123,4 +123,143 @@ plot_ordination(
   title = "Scaled Bray-Curtis PCoA") +
   geom_point(size = 5, alpha = 0.5, aes(color = subdistrict))
 
+# Color by Sex
+# Different sexes do not seem to be have different PCoAs
+ordination_sex <- plot_ordination(
+  physeq = scaled_physeq_above500,
+  ordination = scaled_BC_pcoa,
+  color = "sex",
+  shape = "sex",
+  title = "Scaled Bray-Curtis PCoA") +
+  geom_point(size = 5, alpha = 0.5, aes(color = sex))
+
+grid.arrange(ordination_ethnicity, ordination_sex,
+             ordination_subdistrict,
+             ncol=2)
 ```
+
+# Stats!
+# Check for differences in the communities using PERMANOVA
+```{r permanova}
+set.seed(12)
+
+# Calculate bray curtis for PERMANOVA
+scaled_bray <- phyloseq::distance(scaled_physeq_above500, 
+                   method = "bray", binary = FALSE)
+
+# Pull out metadata
+metadata <- scaled_physeq_above500 %>%
+  sample_data() %>%
+  data.frame()
+
+# Permutational Multivariate Analysis of Variance Using Distance Matrices
+# aka PERMANOVA using the adonis2 function from vegan
+# Test the hypothesis that the fraction centroids are different
+# using the bray curtis
+# Testing if the centroids of the fractions are different
+adonis2(scaled_bray ~ ETHNICITY, data = metadata)
+# p-value from F-statistic is 0.02! 
+# R2 is 51% --> data is explained by the fraction that the study was designed on!
+
+# sub-district
+adonis2(scaled_bray ~ subdistrict, data = metadata)
+# not significant, and not a high R^2
+
+# sub-district
+adonis2(scaled_bray ~ sex, data = metadata)
+# not significant, and and not a high R^2
+
+# Are they independent of each other?
+adonis2(scaled_bray ~ ETHNICITY + subdistrict + sex, data = metadata)
+# we're only able to explain ~62% of the data (total R2 except for residuals)
+
+# Is there an interaction between the variables?
+adonis2(scaled_bray ~ ETHNICITY * subdistrict * sex, data = metadata)
+```
+
+
+# Homogeneity of dispersion test: Beta dispr
+```{r}
+# Dispersion between ethnicity
+betadispr_station <- betadisper(scaled_bray, metadata$ETHNICITY)
+betadispr_station
+
+# run permutations and calculate statistics
+permutest(betadispr_station)
+```
+
+# Compositional Analysis 
+```{r}
+phylum_df <- 
+  scaled_physeq_above500 %>%
+  tax_glom(taxrank = "Phylum") %>%                     # Agglomerate/merge counts by phylum 
+  transform_sample_counts(function(x) {x/sum(x)}) %>%  # Transform to relative abundances
+  psmelt() %>%                                         # melt into long format data frame 
+  dplyr::filter(Abundance > 0.01)                      # filter out phyla that are > 1% abundant 
+# View(phylum_df)
+# Plot the phylum distributions 
+compositional_phylum <- phylum_df %>%
+  ggplot(aes(x = ETHNICITY, y = Abundance, fill = Phylum)) + 
+  geom_bar(stat = "identity", color = "black", position = "fill") +
+  xlab("Ethnicity")
+
+# Class df
+prop_with_class <- nrow(asv_tax %>% filter(!is.na(Class))) / nrow(asv_tax %>% filter(!is.na(Phylum)))
+class_df <- 
+  scaled_physeq_above500 %>%
+  tax_glom(taxrank = "Class") %>%
+  transform_sample_counts(function(x) {x/sum(x)}) %>%
+  psmelt() %>%
+  dplyr::filter(Abundance > 0.01)
+# Plot the Class distributions 
+class_df %>%
+  ggplot(aes(x = ETHNICITY, y = Abundance, fill = Class)) + 
+  geom_bar(stat = "identity", color = "black", position = "fill") +
+  xlab("Ethnicity")
+
+# Order df
+prop_with_order <- nrow(asv_tax %>% filter(!is.na(Order))) / nrow(asv_tax %>% filter(!is.na(Phylum)))
+order_df <- 
+  scaled_physeq_above500 %>%
+  tax_glom(taxrank = "Order") %>%
+  transform_sample_counts(function(x) {x/sum(x)}) %>%
+  psmelt() %>%
+  dplyr::filter(Abundance > 0.01)
+# Plot the order distributions 
+order_df %>%
+  ggplot(aes(x = ETHNICITY, y = Abundance, fill = Order)) + 
+  geom_bar(stat = "identity", color = "black", position = "fill") +
+  xlab("Ethnicity")
+
+# Family df
+prop_with_family <- nrow(asv_tax %>% filter(!is.na(Family))) / nrow(asv_tax %>% filter(!is.na(Phylum)))
+family_df <- 
+  scaled_physeq_above500 %>%
+  tax_glom(taxrank = "Family") %>%
+  transform_sample_counts(function(x) {x/sum(x)}) %>%
+  psmelt() %>%
+  dplyr::filter(Abundance > 0.01)
+# Plot the Class distributions 
+family_df %>%
+  ggplot(aes(x = ETHNICITY, y = Abundance, fill = Family)) + 
+  geom_bar(stat = "identity", color = "black", position = "fill") +
+  xlab("Ethnicity")
+
+# Genus df
+prop_with_genus <- nrow(asv_tax %>% filter(!is.na(Genus))) / nrow(asv_tax %>% filter(!is.na(Phylum)))
+paste0("ASVs with defined genera only account for ", round(prop_with_genus,2)," of those with defined phyla")
+genus_df <- 
+  scaled_physeq_above500 %>%
+  tax_glom(taxrank = "Genus") %>%                     # Agglomerate/merge counts by phylum 
+  transform_sample_counts(function(x) {x/sum(x)}) %>%  # Transform to relative abundances
+  psmelt() %>%                                         # melt into long format data frame 
+  dplyr::filter(Abundance > 0.01)                   # filter out phyla that are > 1% abundant 
+# Plot the Class distributions 
+compositional_genus <- genus_df %>%
+  ggplot(aes(x = ETHNICITY, y = Abundance, fill = Genus)) + 
+  geom_bar(stat = "identity", color = "black", position = "fill") +
+  xlab("Ethnicity")
+
+grid.arrange(compositional_phylum, compositional_genus,
+             ncol=2)
+````
