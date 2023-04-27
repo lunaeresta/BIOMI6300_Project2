@@ -84,9 +84,43 @@ scaled_seqSums_df %>%
   ggplot(aes(x=TotalSeqs)) + # fill = fraction   
   ggtitle("Histogram of Raw Read Counts Samples") +  
   geom_histogram() + 
-  # geom_histogram(bins = 50) + 
   theme(legend.position = c(0.15, 0.85)) +   
   scale_y_continuous(expand = c(0,0)) # +   
-  # scale_x_continuous(limits = c(2200, 2300)) # PLAY AROUND WITH NUMBERS!  #scale_fill_manual(values = fraction_colors)
+  # scale_x_continuous(limits = c(640, 650)) # PLAY AROUND WITH NUMBERS!  #scale_fill_manual(values = fraction_colors)
+
+```
+
+
+# PCoA
+```{r}
+# Calculate Bray-Curtis Dissimilarity
+scaled_BC_pcoa <-
+  ordinate(
+    physeq = scaled_physeq_above500,
+    method = "PCoA",
+    distance = "bray"
+  )
+
+# Plot the PCoA, color by ETHNICITY
+# Ethnicity explains the difference in x-axis a little bit
+# Chinese population seem to be clustered together on the x-axis
+plot_ordination(
+  physeq = scaled_physeq_above500,
+  ordination = scaled_BC_pcoa,
+  color = "ETHNICITY",
+  shape = "ETHNICITY",
+  title = "Scaled Bray-Curtis PCoA") +
+  geom_point(size = 5, alpha = 0.5, aes(color = ETHNICITY))
+
+
+# Color by Sub-district
+# Different sub-districts do not seem to be have different PCoAs
+plot_ordination(
+  physeq = scaled_physeq_above500,
+  ordination = scaled_BC_pcoa,
+  color = "subdistrict",
+  shape = "subdistrict",
+  title = "Scaled Bray-Curtis PCoA") +
+  geom_point(size = 5, alpha = 0.5, aes(color = subdistrict))
 
 ```
