@@ -132,11 +132,11 @@ scaled_rarefaction_fixed_plot
 # Save the file! 
 ggsave(rarefaction_fixed_plot,        
        filename = "figures/rarefaction_fixed.png",       
-       units = "in", height = 3.5, width = 8)
+       units = "in", height = 8, width = 12)
 
 ggsave(scaled_rarefaction_fixed_plot,        
        filename = "figures/rarefaction_fixed_scaled.png",       
-       units = "in", height = 3.5, width = 8)
+       units = "in", height = 8, width = 12)
 
 ```
 
