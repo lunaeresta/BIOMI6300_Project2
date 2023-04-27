@@ -239,3 +239,66 @@ ggiNEXT(iNEXT_data, type = 2) +
   scale_x_continuous(limits = c(0, 5000))
 
 ```
+
+
+# Boxplot of Diversity
+```{r boxplot-div}
+
+iNEXT_data$AsyEst %>%
+  head()
+
+richness_boxplot <- obs_rich_df %>%
+  ggplot(aes(x = ETHNICITY, y = qD, color = ETHNICITY)) +
+  geom_jitter(size = 2.5) +
+  geom_boxplot(aes(fill = ETHNICITY), alpha = 0.5, outlier.shape = NA) +
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1)) +
+  xlab("Ethnicity") +
+  stat_kruskal_test()
+
+richness_boxplot_nolowreads <- obs_rich_df %>%
+  dplyr::filter(m > 500) %>%
+  ggplot(aes(x = ETHNICITY, y = qD, color = ETHNICITY)) +
+  geom_jitter(size = 2.5) +
+  geom_boxplot(aes(fill = ETHNICITY), alpha = 0.5, outlier.shape = NA) +
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1)) +
+  xlab("Ethnicity") +
+  stat_kruskal_test()
+
+# # Kruskal test
+# kruskal.test(qD ~ ETHNICITY,
+#              data = dplyr::filter(obs_rich_df, m > 500))
+
+shannon_boxplot <- obs_shannon_df %>%
+  ggplot(aes(x = ETHNICITY, y = qD, color = ETHNICITY)) +
+  geom_jitter(size = 2.5) +
+  geom_boxplot(aes(fill = ETHNICITY), alpha = 0.5, outlier.shape = NA) +
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1)) +
+  xlab("Ethnicity") +
+  stat_kruskal_test()
+
+shannon_boxplot_nolowreads <- obs_shannon_df %>%
+  dplyr::filter(m > 500) %>%
+  ggplot(aes(x = ETHNICITY, y = qD, color = ETHNICITY)) +
+  geom_jitter(size = 2.5) +
+  geom_boxplot(aes(fill = ETHNICITY), alpha = 0.5, outlier.shape = NA) +
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1)) +
+  xlab("Ethnicity") +
+  stat_kruskal_test()
+
+# Save the fileS! 
+ggsave(richness_boxplot,        
+       filename = "figures/20230426_richness_boxplot.png",       
+       units = "in", height = 3.5, width = 8)
+ggsave(richness_boxplot_nolowreads,        
+       filename = "figures/20230426_richness_boxplot_nolowreads.png",       
+       units = "in", height = 3.5, width = 8)
+ggsave(shannon_boxplot,        
+       filename = "figures/20230426_shannon_boxplot.png",       
+       units = "in", height = 3.5, width = 8)
+ggsave(shannon_boxplot_nolowreads,        
+       filename = "figures/20230426_shannon_boxplot_nolowreads.png",       
+       units = "in", height = 3.5, width = 8)
+
+```
+
+
